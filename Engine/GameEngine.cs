@@ -230,16 +230,18 @@ public sealed class GameEngine(
         _activeFoods.Clear();
         _tickCount = 0;
 
-        // Posição inicial: centro do grid, movendo para a direita
-        var startX = _settings.GridWidth / 2;
+        // Posição inicial: corpo alinhado para a esquerda, cabeça movendo para a direita.
+        var initialLength = Math.Clamp(_settings.InitialSnakeLength, 1, _settings.GridWidth);
+        var startX = Math.Clamp(_settings.GridWidth / 2, initialLength - 1, _settings.GridWidth - 1);
         var startY = _settings.GridHeight / 2;
         var startPos = new Position(startX, startY);
 
-        _snake = new Snake(startPos, Direction.Right);
+        var tailStart = new Position(startX - initialLength + 1, startY);
+        _snake = new Snake(tailStart, Direction.Right);
 
-        // Pré-popular corpo inicial
-        for (int i = 1; i < _settings.InitialSnakeLength; i++)
-            _snake.Move(new Position(startX - i, startY), grow: true);
+        // Pré-popular corpo inicial da cauda até a cabeça.
+        for (int x = tailStart.X + 1; x <= startX; x++)
+            _snake.Move(new Position(x, startY), grow: true);
 
         // Spawnar comida inicial
         EnsureFoodCount();
