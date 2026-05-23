@@ -29,20 +29,23 @@ jobs:
           dotnet-version: '9.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore "Snake Claude/SnakeClaude/SnakeClaude.csproj"
+        run: dotnet restore SnakeClaude.csproj
 
       - name: Publish (static WASM)
         run: |
-          dotnet publish "Snake Claude/SnakeClaude/SnakeClaude.csproj" \
+          dotnet publish SnakeClaude.csproj \
             -c Release \
             -o publish \
             --nologo
 
       - name: Fix base path para GitHub Pages
-        # Se o repositório não for na raiz (ex: usuario.github.io/snake-claude)
-        # descomente e ajuste a linha abaixo com o nome do repositório:
-        # run: sed -i 's|<base href="/" />|<base href="/snake-claude/" />|g' publish/wwwroot/index.html
-        run: echo "Base path OK (raiz do domínio)"
+        # O repo NÃO é usuario.github.io → está em /SnakeClaude/
+        # Ajusta o <base href> para o nome correto do repositório
+        run: |
+          sed -i 's|<base href="/" />|<base href="/SnakeClaude/" />|g' publish/wwwroot/index.html
+          sed -i 's|var segmentCount = 0|var segmentCount = 1|g' publish/wwwroot/404.html
+          echo "Base path ajustado para /SnakeClaude/"
+          grep 'base href' publish/wwwroot/index.html
 
       - name: Upload artifact para Pages
         uses: actions/upload-pages-artifact@v3
